@@ -14,14 +14,16 @@ namespace RobloxScraper
         static void Main(string[] args)
         {
 
-            RobloxThread post = GetThread(221987920).GetAwaiter().GetResult();
+            /*RobloxThread post = GetThread(221987920).GetAwaiter().GetResult();
             Thread thread = post.ToDbThread();
 
             using(var db = new ForumsContext())
             {
                 db.Threads.Add(thread);
                 var result = db.SaveChanges();
-            }
+            }*/
+
+            TaskRunner.StartProcessThreads();
 
             Console.ReadLine();
         }

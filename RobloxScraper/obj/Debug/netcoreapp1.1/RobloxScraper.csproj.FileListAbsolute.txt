@@ -7,3 +7,12 @@ c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\Roblo
 c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.pdb
 c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.dll
 c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.pdb
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.deps.json
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.runtimeconfig.json
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.runtimeconfig.dev.json
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.dll
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.pdb
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.AssemblyInfo.cs
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.dll
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.pdb

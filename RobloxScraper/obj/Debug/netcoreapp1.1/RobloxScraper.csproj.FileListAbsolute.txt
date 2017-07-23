@@ -1,0 +1,9 @@
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.deps.json
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.runtimeconfig.json
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.runtimeconfig.dev.json
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.dll
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.csprojResolveAssemblyReference.cache
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.AssemblyInfo.cs
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\bin\Debug\netcoreapp1.1\RobloxScraper.pdb
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.dll
+c:\users\administrator\documents\visual studio 2017\Projects\RobloxScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.pdb

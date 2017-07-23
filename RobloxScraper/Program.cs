@@ -13,7 +13,6 @@ namespace RobloxScraper
 
         static void Main(string[] args)
         {
-
             /*RobloxThread post = GetThread(221987920).GetAwaiter().GetResult();
             Thread thread = post.ToDbThread();
 
@@ -23,7 +22,8 @@ namespace RobloxScraper
                 var result = db.SaveChanges();
             }*/
 
-            TaskRunner.StartProcessThreads();
+            TaskRunner.Start();
+            ConsoleUpdater updater = new ConsoleUpdater();
 
             Console.ReadLine();
         }

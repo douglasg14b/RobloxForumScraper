@@ -9,8 +9,10 @@ namespace RobloxScraper.RobloxModels
 {
     public class RobloxPage
     {
-        public RobloxPage(string html)
+        int thread_id;
+        public RobloxPage(string html, RobloxThread thread)
         {
+            thread_id = thread.ThreadId;
             Document = new HtmlDocument();
             Document.LoadHtml(html);
 
@@ -69,7 +71,11 @@ namespace RobloxScraper.RobloxModels
         //Parses out the total number of pages in this post
         private void ParseCurrentPageNumber()
         {
-            HtmlNode pager = Document.DocumentNode.SelectSingleNode("//*[@id='ctl00_cphRoblox_PostView1_ctl00_Pager']");
+            HtmlNode pager = Document.GetElementbyId("ctl00_cphRoblox_PostView1_ctl00_Pager");
+            if (pager == null)
+            {
+                throw new Exception($"No pager for Page in Thread: {thread_id}");
+            }
             string pageText = pager.SelectSingleNode("table/tr[1]/td[1]/span").InnerText;
 
             MatchCollection matches = Regex.Matches(pageText, "[0-9]+", RegexOptions.IgnoreCase);

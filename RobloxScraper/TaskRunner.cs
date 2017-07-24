@@ -14,11 +14,12 @@ namespace RobloxScraper
     {
         static RobloxClient _client = new RobloxClient(new HttpClientHandler() { MaxConnectionsPerServer = 100 });
 
-        static int max_threads = 10;
-        static int max_workers = 5;
-        static int max_downloaders = 10;
-        static int max_downloads_per_thread = 200;
-        static int max_forum_thread = 10000;
+        static int max_workers = 7;
+        static int max_downloaders = 7;
+
+        static int max_downloads_per_thread = int.MaxValue;
+        static int max_forum_thread = 100000;
+        static ForumsRepository _repository;
 
 
 
@@ -31,17 +32,19 @@ namespace RobloxScraper
 
             UnparsedThreads = new ConcurrentQueue<KeyValuePair<int, string>>();
 
-            downloadedStats = new ConcurrentDictionary<string, Stats>();
-            processedStats = new ConcurrentDictionary<string, Stats>();
+            downloadedStats = new ConcurrentDictionary<string, Stat>();
+            processedStats = new ConcurrentDictionary<string, Stat>();
         }
 
         static bool alive = false;
+        static bool downloadsActive = false;
+        static bool processorsActive = false;
 
         /***********************
           ======  Stats  =====
          ***********************/
-        public static ConcurrentDictionary<string, Stats> downloadedStats;
-        public static ConcurrentDictionary<string, Stats> processedStats;
+        public static ConcurrentDictionary<string, Stat> downloadedStats;
+        public static ConcurrentDictionary<string, Stat> processedStats;
 
         public static int threadsDownloaded = 0;
         public static int threadsProcessed = 0;
@@ -51,24 +54,33 @@ namespace RobloxScraper
           ======  State  =====
          ***********************/
 
-        static ConcurrentQueue<KeyValuePair<int, string>> UnparsedThreads { get; set; }
+        public static ConcurrentQueue<KeyValuePair<int, string>> UnparsedThreads { get; private set; }
 
-        static ConcurrentBag<Thread> ForumThreads { get; set; }
-        static ConcurrentQueue<int> Queue { get; set; }
+        public static ConcurrentBag<Thread> ForumThreads { get; private set; }
+        public static ConcurrentQueue<int> Queue { get; private set; }
 
         public static ConcurrentDictionary<string, Task> DownloadTasks { get; private set; }
         public static ConcurrentDictionary<string, Task> ProcessingTasks { get; private set; }
 
+        //ohgod just instantiate the damn class
+        public static void Init(ForumsRepository repository)
+        {
+            _repository = repository;
+        }
+
         public static void Start()
         {
             alive = true;
-            FillQueue();
+            downloadsActive = true;
+            processorsActive = true;
+            int startAt = _repository.GetHighestThreadId();
+            FillQueue(startAt);
             InitDownloaders();
             InitWorkers();
 
             Task.Delay(60000).ContinueWith(t => 
             {
-                Interrupt(1500);
+                //Interrupt(1500);
             });
 
         }
@@ -84,7 +96,7 @@ namespace RobloxScraper
                 Task task = new Task((object state) => { DoDownloadWork(state).GetAwaiter().GetResult(); }, $"download_task{i}", TaskCreationOptions.LongRunning);
 
                 DownloadTasks.TryAdd($"download_task{i}", task);
-                downloadedStats.TryAdd($"download_task{i}", new Stats());
+                downloadedStats.TryAdd($"download_task{i}", new Stat());
 
                 task.Start();
             }
@@ -97,20 +109,20 @@ namespace RobloxScraper
                 Task task = new Task((object state) => { DoWork(state).GetAwaiter().GetResult(); }, $"worker_task{i}", TaskCreationOptions.LongRunning);
 
                 ProcessingTasks.TryAdd($"worker_task{i}", task);
-                processedStats.TryAdd($"worker_task{i}", new Stats());
+                processedStats.TryAdd($"worker_task{i}", new Stat());
 
                 task.Start();
             }
         }
 
-        private static void FillQueue()
+        private static void FillQueue(int startat)
         {
             /*for(int i = 0; i < max_forum_thread; i++)
             {
                 Queue.Enqueue(i);
             }*/
 
-            for(int i = 221847158; i < max_forum_thread + 221847158; i++)
+            for(int i = startat + 1; i < max_forum_thread; i++)
             {
                 Queue.Enqueue(i);
             }
@@ -133,6 +145,30 @@ namespace RobloxScraper
             processedStats[key].Count++;
             processedStats[key].TimeTaken += time;
         }
+
+        private static async void DownloaderComplete(string key)
+        {
+            foreach(Task task in DownloadTasks.Values)
+            {
+                if (!task.IsCompleted)
+                {
+                    return;
+                }
+            }
+            downloadsActive = false;
+        }
+
+        private static async void ProcessorComplete(string key)
+        {
+            foreach (Task task in ProcessingTasks.Values)
+            {
+                if (!task.IsCompleted)
+                {
+                    return;
+                }
+            }
+            processorsActive = false;
+        }
         /**********************************************
            =============== Work ===============
          **********************************************/
@@ -147,6 +183,7 @@ namespace RobloxScraper
                 int id;
                 if (Queue.IsEmpty)
                 {
+                    DownloaderComplete(state.ToString());
                     break;
                 }
                 while (!Queue.TryDequeue(out id)) { }
@@ -157,7 +194,6 @@ namespace RobloxScraper
                 stopwatch.Stop();
                 IterateThreadsDownloaded(state.ToString(), stopwatch.ElapsedMilliseconds);
             }
-            Console.WriteLine($"Download Task {state.ToString()} has been interrupted");
         }
 
         private static async Task DoWork(object state)
@@ -169,16 +205,19 @@ namespace RobloxScraper
                 KeyValuePair<int, string> thread;
                 if (UnparsedThreads.IsEmpty)
                 {
-                    //Console.WriteLine($"Queue is now empty");
-                    //break;
+                    if (!downloadsActive)
+                    {
+                        ProcessorComplete(state.ToString());
+                        return;
+                    }
+                    continue;
                 }
-                while(!UnparsedThreads.TryDequeue(out thread)) { }
+                while(!UnparsedThreads.TryDequeue(out thread) && downloadsActive) { }
 
                 await ProcessThread(thread.Key, thread.Value);
                 stopwatch.Stop();
                 IterateThreadsProcessed(state.ToString(), stopwatch.ElapsedMilliseconds);
             }
-            Console.WriteLine($"Task {state.ToString()} has been interrupted");
         }
 
         private static async Task DownloadThread(int id)
@@ -190,10 +229,18 @@ namespace RobloxScraper
 
         private static async Task ProcessThread(int id, string html)
         {
+            if (String.IsNullOrEmpty(html))
+            {
+                ForumThreads.Add(new Thread() { Id = id });
+                System.Threading.Interlocked.Increment(ref emptyThreads);
+                return;
+            }
+
             RobloxThread thread = new RobloxThread(id);
             thread.AddPage(html);
             if (thread.IsEmpty)
             {
+                ForumThreads.Add(new Thread() { Id = id });
                 System.Threading.Interlocked.Increment(ref emptyThreads);
                 return;
             }
@@ -203,6 +250,11 @@ namespace RobloxScraper
                 for (int i = 1; i < thread.PagesCount; i++)
                 {
                     string pageHtml = await _client.GetThread(id, i, thread.GetNextPageParams());
+                    if (String.IsNullOrEmpty(pageHtml))
+                    {
+                        thread.Errors += $"; Page {i} is error";
+                        break;
+                    }
                     thread.AddPage(pageHtml);
                 }
             }

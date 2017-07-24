@@ -60,7 +60,9 @@ namespace RobloxScraper.Migrations
                 {
                     id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    forum = table.Column<int>(nullable: false),
+                    errors = table.Column<string>(nullable: true),
+                    forum = table.Column<int>(nullable: true),
+                    is_empty = table.Column<bool>(nullable: false),
                     title = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -71,7 +73,7 @@ namespace RobloxScraper.Migrations
                         column: x => x.forum,
                         principalTable: "Forums",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

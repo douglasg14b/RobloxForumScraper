@@ -22,6 +22,7 @@ namespace RobloxScraper.RobloxModels
         public string Title { get; set; }
         public int PagesCount { get; set; }
         public int CurrentPage { get; set; } = 0;  //Last page that was added, rename?
+        public string Errors { get; set; } = "";
         public RobloxForum Forum { get; set; }
         public RobloxForumGroup ForumGroup { get; set; }
         public List<RobloxPage> Pages { get; set; }
@@ -29,7 +30,7 @@ namespace RobloxScraper.RobloxModels
 
         public void AddPage(string html)
         {
-            RobloxPage page = new RobloxPage(html);
+            RobloxPage page = new RobloxPage(html, this);
             if(page.PageNumber == CurrentPage)
             {
                 if(CurrentPage == 0)
@@ -93,7 +94,7 @@ namespace RobloxScraper.RobloxModels
                 posts.AddRange(page.ToDbPosts());
             }
 
-            Thread dbThread = new Thread(ThreadId, Title, forum, posts);
+            Thread dbThread = new Thread(ThreadId, Title, Errors, forum, posts);
             foreach(Post post in posts)
             {
                 post.Thread = dbThread;

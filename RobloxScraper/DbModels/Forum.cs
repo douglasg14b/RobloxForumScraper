@@ -20,6 +20,7 @@ namespace RobloxScraper.DbModels
             Id = id;
             Name = name;
             ForumGroup = forumgroup;
+            ForumGroupId = forumgroup.Id;
         }
 
         [Key]

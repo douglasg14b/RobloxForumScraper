@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RobloxScraper.DbModels
 {
-    class ForumsContext : DbContext
+    public class ForumsContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

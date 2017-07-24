@@ -22,10 +22,15 @@ namespace RobloxScraper
                 var result = db.SaveChanges();
             }*/
 
-            TaskRunner.Start();
-            ConsoleUpdater updater = new ConsoleUpdater();
 
-            Console.ReadLine();
+            ForumsRepository respository = new ForumsRepository(new ForumsContext());
+
+            TaskRunner.Init(respository);
+            TaskRunner.Start();
+            StatsManager updater = new StatsManager();
+            DbManager dbManager = new DbManager(respository);
+
+            Console.ReadKey(true);
         }
 
 

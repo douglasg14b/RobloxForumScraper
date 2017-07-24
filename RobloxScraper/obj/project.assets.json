@@ -2,6 +2,19 @@
   "version": 2,
   "targets": {
     ".NETCoreApp,Version=v1.1": {
+      "ConsoleTables/2.1.0": {
+        "type": "package",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        },
+        "compile": {
+          "lib/netstandard1.3/ConsoleTables.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/ConsoleTables.dll": {}
+        }
+      },
       "HtmlAgilityPack/1.5.1": {
         "type": "package",
         "dependencies": {
@@ -2748,6 +2761,17 @@
     }
   },
   "libraries": {
+    "ConsoleTables/2.1.0": {
+      "sha512": "0Y95Fr9tNzxxJmZejpYNTZ/9xAvdeYE5px8MAzfTylaPbIsEPBaQIq5mAPbJJAPAcB2nlc6paENbGfwMtrUdPg==",
+      "type": "package",
+      "path": "consoletables/2.1.0",
+      "files": [
+        "consoletables.2.1.0.nupkg.sha512",
+        "consoletables.nuspec",
+        "lib/net40/ConsoleTables.dll",
+        "lib/netstandard1.3/ConsoleTables.dll"
+      ]
+    },
     "HtmlAgilityPack/1.5.1": {
       "sha512": "MvyOKuM+j4UAr++VDsK85cAPySz7lc+VttQt6PMd16S9rSdCyzKl2Ctz31vhBgPD41ImQxmYxubUqzTVM4grjg==",
       "type": "package",
@@ -8026,6 +8050,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v1.1": [
+      "ConsoleTables >= 2.1.0",
       "HtmlAgilityPack >= 1.5.1",
       "Microsoft.EntityFrameworkCore >= 1.1.2",
       "Microsoft.EntityFrameworkCore.Design >= 1.1.2",
@@ -8056,6 +8081,10 @@
     "frameworks": {
       "netcoreapp1.1": {
         "dependencies": {
+          "ConsoleTables": {
+            "target": "Package",
+            "version": "2.1.0"
+          },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "1.1.2"

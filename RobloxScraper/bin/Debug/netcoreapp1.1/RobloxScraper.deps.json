@@ -1,13 +1,14 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v1.1",
-    "signature": "d23bfb8d52cf2abd678aea3f7ae57fcebce516f2"
+    "signature": "02cd80f1d169ab03488dce8d2ff4f89618482c40"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v1.1": {
       "robloxscraper/1.0.0": {
         "dependencies": {
+          "ConsoleTables": "2.1.0",
           "HtmlAgilityPack": "1.5.1",
           "Microsoft.EntityFrameworkCore": "1.1.2",
           "Microsoft.EntityFrameworkCore.Design": "1.1.2",
@@ -15,6 +16,11 @@
         },
         "runtime": {
           "RobloxScraper.dll": {}
+        }
+      },
+      "consoletables/2.1.0": {
+        "runtime": {
+          "lib/netstandard1.3/ConsoleTables.dll": {}
         }
       },
       "htmlagilitypack/1.5.1": {
@@ -284,6 +290,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "consoletables/2.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0Y95Fr9tNzxxJmZejpYNTZ/9xAvdeYE5px8MAzfTylaPbIsEPBaQIq5mAPbJJAPAcB2nlc6paENbGfwMtrUdPg==",
+      "path": "consoletables/2.1.0",
+      "hashPath": "consoletables.2.1.0.nupkg.sha512"
     },
     "htmlagilitypack/1.5.1": {
       "type": "package",

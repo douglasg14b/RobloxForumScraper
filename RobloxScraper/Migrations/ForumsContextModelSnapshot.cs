@@ -81,8 +81,14 @@ namespace RobloxScraper.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
-                    b.Property<int>("ForumId")
+                    b.Property<string>("Errors")
+                        .HasColumnName("errors");
+
+                    b.Property<int?>("ForumId")
                         .HasColumnName("forum");
+
+                    b.Property<bool>("IsEmpty")
+                        .HasColumnName("is_empty");
 
                     b.Property<string>("Title")
                         .HasColumnName("title");
@@ -133,8 +139,7 @@ namespace RobloxScraper.Migrations
                 {
                     b.HasOne("RobloxScraper.DbModels.Forum", "Forum")
                         .WithMany()
-                        .HasForeignKey("ForumId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ForumId");
                 });
         }
     }

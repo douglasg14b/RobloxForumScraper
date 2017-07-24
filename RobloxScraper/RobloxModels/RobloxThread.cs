@@ -84,6 +84,7 @@ namespace RobloxScraper.RobloxModels
             Forum forum = Forum.ToDbForum();
 
             forum.ForumGroup = forumGroup;
+            forum.ForumGroupId = forumGroup.Id;
             forumGroup.Forums = new List<Forum>() { forum };
 
             /* Posts */

@@ -15,6 +15,7 @@ namespace RobloxScraper.DbModels
             Title = title;
             Errors = errors;
             Forum = forum;
+            ForumId = forum.Id;
             Posts = posts;
             IsEmpty = false;
         }

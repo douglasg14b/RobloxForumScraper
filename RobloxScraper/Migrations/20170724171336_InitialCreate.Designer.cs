@@ -8,7 +8,7 @@ using RobloxScraper.DbModels;
 namespace RobloxScraper.Migrations
 {
     [DbContext(typeof(ForumsContext))]
-    [Migration("20170724063530_InitialCreate")]
+    [Migration("20170724171336_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -13,6 +13,7 @@ namespace RobloxScraper.DbModels
             Timestamp = timestamp;
             Body = body;
             User = user;
+            UserId = user.Id;
         }
 
         public Post(DateTime timestamp, string body, User user, Thread thread)

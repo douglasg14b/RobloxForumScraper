@@ -129,8 +129,9 @@ namespace RobloxScraper
 
 
                 string status = GetWorkerStatus(TaskRunner.DownloadTasks[DownloadTasks[i]]);
+                int id = TaskRunner.DownloadTasks[DownloadTasks[i]].Id;
 
-                table.AddRow($"#{i}", status, count, avg);
+                table.AddRow($"#{i} ({id})", status, count, avg);
 
                 totalDownloaded += count;
                 totalDownloadTime += time;
@@ -147,8 +148,9 @@ namespace RobloxScraper
 
 
                 string status = GetWorkerStatus(TaskRunner.ProcessingTasks[ProcessTasks[i]]);
+                int id = TaskRunner.ProcessingTasks[ProcessTasks[i]].Id;
 
-                table.AddRow($"#{i}", status, count, avg);
+                table.AddRow($"#{i} ({id})", status, count, avg);
 
                 totalProcessed += count;
                 totalProcessTime += time;

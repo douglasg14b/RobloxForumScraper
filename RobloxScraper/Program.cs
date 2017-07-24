@@ -13,19 +13,12 @@ namespace RobloxScraper
 
         static void Main(string[] args)
         {
-            /*RobloxThread post = GetThread(221987920).GetAwaiter().GetResult();
-            Thread thread = post.ToDbThread();
 
-            using(var db = new ForumsContext())
-            {
-                db.Threads.Add(thread);
-                var result = db.SaveChanges();
-            }*/
-
+            Config config = new Config();
 
             ForumsRepository respository = new ForumsRepository(new ForumsContext());
 
-            TaskRunner.Init(respository);
+            TaskRunner.Init(respository, config);
             TaskRunner.Start();
             StatsManager updater = new StatsManager();
             DbManager dbManager = new DbManager(respository);

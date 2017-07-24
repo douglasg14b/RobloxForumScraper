@@ -17,9 +17,13 @@ namespace RobloxScraper
         List<string> ProcessTasks { get; set; }
 
         long totalDownloaded = 0;
+        long totalPagesDownloaded = 0;
         long totalProcessed = 0;
+        long totalPagesProcessed = 0;
         long totalDownloadTime = 0;
+        long totalPagesDownloadTime = 0;
         long totalProcessTime = 0;
+        long totalPagesProcessedTime = 0;
 
         Stat downloadSnapshot;
         Stat processedSnapshot;
@@ -47,9 +51,13 @@ namespace RobloxScraper
         private void UpdateConsole(object obj)
         {
             totalDownloaded = 0;
+            totalPagesDownloaded = 0;
             totalProcessed = 0;
+            totalPagesProcessed = 0;
             totalDownloadTime = 0;
+            totalPagesDownloadTime = 0;
             totalProcessTime = 0;
+            totalPagesProcessedTime = 0;
 
             string statsTable = GetStatsTable();
             string downloadTable = GetDownloadTable();
@@ -77,7 +85,7 @@ namespace RobloxScraper
 
         private string GetDownloadTable()
         {
-            var table = new ConsoleTable("Worker", "Status", "Downloaded", "Avg Time(ms)");
+            var table = new ConsoleTable("Worker", "Status", "Downloaded", "Pages Downloaded", "Avg Time(ms)");
             AddDownloadTaskRows(table);
             AddDownloadTotalsRow(table);
             return table.ToMarkDownString();
@@ -85,7 +93,7 @@ namespace RobloxScraper
 
         private string GetProcessedTable()
         {
-            var table = new ConsoleTable("Worker", "Status", "Processed", "Avg Time(ms)");
+            var table = new ConsoleTable("Worker", "Status", "Processed", "Pages Processed ", "Avg Time(ms)");
             AddProcessedTaskRows(table);
             AddProcessedTotalsRow(table);
             AddEmptyTotalsRow(table);
@@ -95,28 +103,28 @@ namespace RobloxScraper
         private void AddDownloadTotalsRow(ConsoleTable table)
         {
             float time = float.NaN;
-            if(totalDownloaded > 0 && DownloadTasks.Count > 0)
+            if(totalDownloaded + totalPagesDownloaded > 0 && DownloadTasks.Count > 0)
             {
-                time = totalDownloadTime / DownloadTasks.Count / totalDownloaded;
+                time = (totalDownloadTime + totalPagesDownloadTime) / DownloadTasks.Count / (totalDownloaded + totalPagesDownloaded);
             }
 
-            table.AddRow("---", "Total", totalDownloaded, time);
+            table.AddRow("---", "Total", totalDownloaded, totalPagesDownloaded, time);
         }
 
         private void AddProcessedTotalsRow(ConsoleTable table)
         {
             float time = float.NaN;
-            if (totalProcessed > 0 && ProcessTasks.Count > 0)
+            if (totalProcessed + totalPagesProcessed > 0 && ProcessTasks.Count > 0)
             {
-                time = totalProcessTime / ProcessTasks.Count / totalProcessed;
+                time = (totalProcessTime + totalPagesProcessedTime) / ProcessTasks.Count / (totalProcessed + totalPagesProcessed);
             }
 
-            table.AddRow("---", "Total", totalProcessed, time);
+            table.AddRow("---", "Total", totalProcessed, totalPagesProcessed, time);
         }
 
         private void AddEmptyTotalsRow(ConsoleTable table)
         {
-            table.AddRow("---", "Total Empty", TaskRunner.emptyThreads, "N/A");
+            table.AddRow("---", "Total Empty", TaskRunner.emptyThreads, "N/A", "N/A");
         }
 
         private void AddDownloadTaskRows(ConsoleTable table)
@@ -124,17 +132,22 @@ namespace RobloxScraper
             for (int i = 0; i < DownloadTasks.Count; i++)
             {
                 long count = TaskRunner.downloadedStats[DownloadTasks[i]].Count;
+                long pagesCount = TaskRunner.pageDownloadStats[DownloadTasks[i]].Count;
                 long time = TaskRunner.downloadedStats[DownloadTasks[i]].TimeTaken;
-                float avg = TaskRunner.downloadedStats[DownloadTasks[i]].Average;
+                long pagesTime = TaskRunner.pageDownloadStats[DownloadTasks[i]].TimeTaken;
+
+                float avg = new Stat(count + pagesCount, time + pagesTime).Average;
 
 
                 string status = GetWorkerStatus(TaskRunner.DownloadTasks[DownloadTasks[i]]);
                 int id = TaskRunner.DownloadTasks[DownloadTasks[i]].Id;
 
-                table.AddRow($"#{i} ({id})", status, count, avg);
+                table.AddRow($"#{i} ({id})", status, count, pagesCount, avg);
 
                 totalDownloaded += count;
+                totalPagesDownloaded += pagesCount;
                 totalDownloadTime += time;
+                totalPagesDownloadTime += pagesTime;
             }
         }
 
@@ -143,17 +156,21 @@ namespace RobloxScraper
             for (int i = 0; i < ProcessTasks.Count; i++)
             {
                 long count = TaskRunner.processedStats[ProcessTasks[i]].Count;
+                long pagesCount = TaskRunner.pageProcessedStats[ProcessTasks[i]].Count;
                 long time = TaskRunner.processedStats[ProcessTasks[i]].TimeTaken;
-                float avg = TaskRunner.processedStats[ProcessTasks[i]].Average;
+                long pagesTime = TaskRunner.pageProcessedStats[ProcessTasks[i]].TimeTaken;
 
+                float avg = new Stat(count+pagesCount, time+pagesTime).Average;
 
                 string status = GetWorkerStatus(TaskRunner.ProcessingTasks[ProcessTasks[i]]);
                 int id = TaskRunner.ProcessingTasks[ProcessTasks[i]].Id;
 
-                table.AddRow($"#{i} ({id})", status, count, avg);
+                table.AddRow($"#{i} ({id})", status, count, pagesCount, avg);
 
                 totalProcessed += count;
+                totalPagesProcessed += pagesCount;
                 totalProcessTime += time;
+                totalPagesProcessedTime += pagesTime;
             }
         }
 

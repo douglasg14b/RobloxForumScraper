@@ -1,11 +1,9 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
-using HtmlAgilityPack;
 using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RobloxScraper.RobloxModels
@@ -61,58 +59,12 @@ namespace RobloxScraper.RobloxModels
             {
                 throw new Exception("Unexpected page number");
             }
-            /*
-            try
-            {
-                document1 = parser.Parse(html);
-                document = new HtmlDocument();
-                document.LoadHtml(html);
-                page = new RobloxPage(document, this);
-                if (page.PageNumber == CurrentPage)
-                {
-                    try
-                    {
-                        if (CurrentPage == 0)
-                        {
-                            AddFirstPage(document1, page);
-                        }
-                        else
-                        {
-                            Pages.Add(page);
-                            CurrentPage++;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Write(ex.Message + " In Thread # " + ThreadId);
-                        throw new Exception(ex.Message + " In Thread # " + ThreadId);
-                    }
-
-                }
-                else
-                {
-                    throw new Exception("Unexpected page number");
-                }
-            }
-            catch (ArgumentException ex) //On an unsupported encoding type
-            {
-                page = new RobloxPage();
-                if (CurrentPage == 0)
-                {
-                    IsEmpty = true;
-                }
-                else
-                {
-                    Pages.Add(page);
-                    CurrentPage++;
-                }
-            }*/
         }
 
 
 
         //First page add, performs some additional stuff
-        public void AddFirstPage(AngleSharp.Dom.Html.IHtmlDocument document, RobloxPage page)
+        public void AddFirstPage(IHtmlDocument document, RobloxPage page)
         {
             if (!page.IsEmpty)
             {
@@ -162,16 +114,9 @@ namespace RobloxScraper.RobloxModels
             return dbThread;
         }
 
-        private void ParseForum(AngleSharp.Dom.Html.IHtmlDocument document)
+        private void ParseForum(IHtmlDocument document)
         {
             IHtmlCollection<IElement> forumsElements = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Whereami1").QuerySelectorAll("nobr > a");
-
-
-            //HtmlNode forumGroupNode = forumsNode.SelectSingleNode("div/nobr[2]/a");
-            //HtmlNode forumNode = forumsNode.SelectSingleNode("div/nobr[3]/a");
-            //string forumUrl = forumNode.Attributes["href"].Value;
-            //string formName = forumNode.InnerText;
-
 
             string forumUrl = forumsElements[forumsElements.Length - 1].Attributes["href"].Value;
             string formName = forumsElements[forumsElements.Length - 1].TextContent;
@@ -199,7 +144,7 @@ namespace RobloxScraper.RobloxModels
             ForumGroup = new RobloxForumGroup(int.Parse(forumMatches[0].Value), formGroupName);
         }
 
-        private void ParseTitle(AngleSharp.Dom.Html.IHtmlDocument document)
+        private void ParseTitle(IHtmlDocument document)
         {
             Title = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_PostTitle").TextContent;
         }
@@ -207,12 +152,9 @@ namespace RobloxScraper.RobloxModels
 
 
         //Parses out the total number of pages in this post
-        private void ParseNumberOfPages(AngleSharp.Dom.Html.IHtmlDocument document)
+        private void ParseNumberOfPages(IHtmlDocument document)
         {
-            IElement pager = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Pager").QuerySelector("table tr").QuerySelector("td").QuerySelector("span");
-                
-            //HtmlNode pager = document.DocumentNode.SelectSingleNode("//*[@id='ctl00_cphRoblox_PostView1_ctl00_Pager']");
-            //string pageText = pager.SelectSingleNode("table/tr[1]/td[1]/span").InnerText;
+            IElement pager = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Pager").QuerySelector("table tr").QuerySelector("td").QuerySelector("span");               
             string pageText = pager.TextContent;
 
             MatchCollection matches = Regex.Matches(pageText, "[0-9]+", RegexOptions.IgnoreCase);

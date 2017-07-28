@@ -21,6 +21,9 @@ namespace RobloxScraper
         static int max_forum_thread = 5000000;
         static int start_thread_modifier = 0;
 
+        static int max_processing_queue = 100;
+        static int max_database_queue = 250;
+
         static int max_downloads_per_thread = int.MaxValue;
         static ForumsRepository _repository;
 
@@ -90,6 +93,7 @@ namespace RobloxScraper
             max_downloaders = config.MaxDownloaders;
             max_forum_thread = config.MaxThread;
             start_thread_modifier = config.StartThread;
+            max_database_queue += config.ThreadsBeforeWrite;
         }
 
         public static void Start()
@@ -220,6 +224,12 @@ namespace RobloxScraper
             Stopwatch stopwatch = new Stopwatch();
             while (alive && downloads < max_downloads_per_thread)
             {
+                if(UnparsedThreads.Count > max_processing_queue)
+                {
+                    System.Threading.Thread.Sleep(10);
+                    continue;
+                }
+
                 //Process page queue first
                 if (!PageQueue.IsEmpty)
                 {
@@ -279,7 +289,15 @@ namespace RobloxScraper
                     }
                     continue;
                 }
-                while(!UnparsedThreads.TryDequeue(out thread) && downloadsActive) { }
+                try
+                {
+                    while (!UnparsedThreads.TryDequeue(out thread) && downloadsActive) { }
+                }
+                catch(Exception ex)
+                {
+                    Console.Write(ex);
+                }
+                
 
                 ProcessThread(thread.Key, thread.Value);
                 stopwatch.Stop();
@@ -337,6 +355,7 @@ namespace RobloxScraper
             Thread dbThread = thread.ToDbThread();
             ForumThreads.Add(dbThread);
             System.Threading.Interlocked.Increment(ref threadsProcessed);
+            thread = null;
             return;
         }
 

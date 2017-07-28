@@ -163,6 +163,10 @@ namespace RobloxScraper
                 float avg = new Stat(count+pagesCount, time+pagesTime).Average;
 
                 string status = GetWorkerStatus(TaskRunner.ProcessingTasks[ProcessTasks[i]]);
+                if(status == "Faulted")
+                {
+                    Console.WriteLine(TaskRunner.ProcessingTasks[ProcessTasks[i]].Exception);
+                }
                 int id = TaskRunner.ProcessingTasks[ProcessTasks[i]].Id;
 
                 table.AddRow($"#{i} ({id})", status, count, pagesCount, avg);
@@ -177,14 +181,6 @@ namespace RobloxScraper
         private string GetWorkerStatus(Task task)
         {
             return task.Status.ToString();
-            if (task.IsCompleted)
-            {
-                return "Completed";
-            }
-            else
-            {
-                return "Running";
-            }
         }
 
         private float GetSnapshotAvg(string type, long count, long time)

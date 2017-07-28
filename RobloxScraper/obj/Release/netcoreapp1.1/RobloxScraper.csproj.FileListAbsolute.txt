@@ -1,3 +1,6 @@
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\Licence.txt
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\scraper.ini
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\sqlite3.def
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\RobloxScraper.deps.json
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\RobloxScraper.runtimeconfig.json
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Release\netcoreapp1.1\RobloxScraper.runtimeconfig.dev.json

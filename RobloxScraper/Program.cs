@@ -3,6 +3,7 @@ using RobloxScraper.RobloxModels;
 using System;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RobloxScraper
@@ -13,6 +14,8 @@ namespace RobloxScraper
 
         static void Main(string[] args)
         {
+            EncodingProvider provider = CodePagesEncodingProvider.Instance;
+            Encoding.RegisterProvider(provider);
 
             Config config = new Config();
 
@@ -21,7 +24,7 @@ namespace RobloxScraper
             TaskRunner.Init(respository, config);
             TaskRunner.Start();
             StatsManager updater = new StatsManager();
-            DbManager dbManager = new DbManager(respository);
+            DbManager dbManager = new DbManager(respository, config);
 
             Console.ReadKey(true);
         }

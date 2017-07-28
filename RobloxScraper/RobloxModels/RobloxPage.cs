@@ -1,4 +1,6 @@
-﻿using HtmlAgilityPack;
+﻿using AngleSharp.Dom;
+using AngleSharp.Dom.Html;
+using HtmlAgilityPack;
 using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
@@ -10,25 +12,23 @@ namespace RobloxScraper.RobloxModels
     public class RobloxPage
     {
         int thread_id;
-        public RobloxPage(string html, RobloxThread thread)
+        public RobloxPage() { IsEmpty = true; }
+        public RobloxPage(IHtmlDocument document, RobloxThread thread)
         {
             thread_id = thread.ThreadId;
-            Document = new HtmlDocument();
-            Document.LoadHtml(html);
 
-            if (PageExists())
+            if (PageExists(document))
             {
                 IsEmpty = false;
                 Posts = new List<RobloxPost>();
-                ParseCurrentPageNumber();
-                ParseRequestInputParams();
-                ParsePosts();
+                ParseCurrentPageNumber(document);
+                ParseRequestInputParams(document);
+                ParsePosts(document);
                 return;
             }
             IsEmpty = true;
         }
 
-        public HtmlDocument Document { get; private set; }
         public RobloxRequestParams Params { get; set; }
         public int PageNumber { get; set; }
         public bool IsEmpty { get; set; }
@@ -54,12 +54,12 @@ namespace RobloxScraper.RobloxModels
             return posts;
         }
 
-        private bool PageExists()
+        private bool PageExists(IHtmlDocument document)
         {
-            HtmlNode node = Document.GetElementbyId("ctl00_cphRoblox_Message1_ctl00_MessageTitle");
+            IElement node = document.GetElementById("ctl00_cphRoblox_Message1_ctl00_MessageTitle");
             if(node != null)
             {
-                string message = node.InnerText;
+                string message = node.TextContent;
                 if (message.ToLower().Contains("error"))
                 {
                     return false;
@@ -69,14 +69,14 @@ namespace RobloxScraper.RobloxModels
         }
 
         //Parses out the total number of pages in this post
-        private void ParseCurrentPageNumber()
+        private void ParseCurrentPageNumber(IHtmlDocument document)
         {
-            HtmlNode pager = Document.GetElementbyId("ctl00_cphRoblox_PostView1_ctl00_Pager");
+            IElement pager = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Pager");
             if (pager == null)
             {
                 throw new Exception($"No pager for Page in Thread: {thread_id}");
             }
-            string pageText = pager.SelectSingleNode("table/tr[1]/td[1]/span").InnerText;
+            string pageText = pager.QuerySelector("table tr:nth-child(1) td:nth-child(1) span").TextContent;
 
             MatchCollection matches = Regex.Matches(pageText, "[0-9]+", RegexOptions.IgnoreCase);
 
@@ -84,14 +84,14 @@ namespace RobloxScraper.RobloxModels
         }
 
         //Parses the __VIEWSTATE, __VIEWSTATEGENERATOR, __EVENTVALIDATION, and __EVENTARGUMENT
-        private void ParseRequestInputParams()
+        private void ParseRequestInputParams(IHtmlDocument document)
         {
             string eventArgument = "";
-            string viewState = Document.GetElementbyId("__VIEWSTATE").Attributes["value"].Value;
-            string viewStateGenerator = Document.GetElementbyId("__VIEWSTATEGENERATOR").Attributes["value"].Value;
-            string eventValidation = Document.GetElementbyId("__EVENTVALIDATION").Attributes["value"].Value;
+            string viewState = document.GetElementById("__VIEWSTATE").Attributes["value"].Value;
+            string viewStateGenerator = document.GetElementById("__VIEWSTATEGENERATOR").Attributes["value"].Value;
+            string eventValidation = document.GetElementById("__EVENTVALIDATION").Attributes["value"].Value;
 
-            HtmlNode eventArgumentNode = Document.GetElementbyId("__EVENTTARGET");
+            IElement eventArgumentNode = document.GetElementById("__EVENTTARGET");
 
             if (eventArgumentNode != null)
             {
@@ -101,10 +101,11 @@ namespace RobloxScraper.RobloxModels
             Params = new RobloxRequestParams(eventArgument, viewState, viewStateGenerator, eventValidation);
         }
 
-        private void ParsePosts()
+        private void ParsePosts(IHtmlDocument document)
         {
-            HtmlNodeCollection postNodes = Document.DocumentNode.SelectNodes("//tr[@class='forum-post']");
-            foreach (HtmlNode node in postNodes)
+            IHtmlCollection<IElement> posts = document.QuerySelectorAll("tr.forum-post");
+            //HtmlNodeCollection postNodes = document.DocumentNode.SelectNodes("//tr[@class='forum-post']");
+            foreach (IElement node in posts)
             {
                 RobloxPost post = new RobloxPost(node);
                 Posts.Add(post);

@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using AngleSharp.Dom;
+using HtmlAgilityPack;
 using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,10 @@ namespace RobloxScraper.RobloxModels
 {
     public class RobloxPost
     {
-        public RobloxPost(HtmlNode postnode)
+        public RobloxPost(IElement postnode)
         {
-            PostNode = postnode;
-            ParsePost();
+            ParsePost(postnode);
         }
-
-        public HtmlNode PostNode { get; private set; }
 
         public RobloxUser User { get; private set; }
         public string PostBody { get; private set; }
@@ -32,28 +30,26 @@ namespace RobloxScraper.RobloxModels
         }
 
 
-        private void ParsePost()
+        private void ParsePost(IElement postnode)
         {
-            HtmlNode userTable = PostNode.SelectSingleNode("td[1]/table");
-            HtmlNode userNode = userTable.SelectSingleNode("tr[1]/td/a");
+            IHtmlCollection<IElement> tables = postnode.QuerySelectorAll("table");
+            IElement userNode = tables[0].QuerySelector("tr:nth-child(1) td a");
 
 
-            HtmlNode bodyTable = PostNode.SelectSingleNode("td[2]/table");
-            HtmlNode timestamp = bodyTable.SelectSingleNode("tr[1]");
-            HtmlNode body = bodyTable.SelectSingleNode("tr[2]");
+            IElement timestamp = tables[1].QuerySelector("tr:nth-child(1)");
+            IElement body = tables[1].QuerySelector("tr:nth-child(2)");
 
             User = ParseUser(userNode);
-            Timestamp = ParseTimestamp(timestamp.SelectSingleNode("td/span").InnerText);
-            PostBody = ParsePostBody(body.SelectSingleNode("td/span").InnerHtml);
-
+            Timestamp = ParseTimestamp(timestamp.QuerySelector("td span").TextContent);
+            PostBody = ParsePostBody(body.QuerySelector("td span").InnerHtml);
         }
 
-        private RobloxUser ParseUser(HtmlNode userNode)
+        private RobloxUser ParseUser(IElement userNode)
         {
             string userLink = userNode.Attributes["href"].Value;
             MatchCollection matches = Regex.Matches(userLink, "[0-9]+", RegexOptions.IgnoreCase);
             int id = int.Parse(matches[0].Value);
-            string name = userNode.InnerText;
+            string name = userNode.TextContent;
             return new RobloxUser(name, id);
         }
 

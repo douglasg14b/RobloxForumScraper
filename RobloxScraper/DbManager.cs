@@ -11,26 +11,27 @@ namespace RobloxScraper
     {
         Timer timer;
         ForumsRepository repository;
+        int required_threads;
 
-        public DbManager(ForumsRepository repository)
+        public DbManager(ForumsRepository repository, Config config)
         {
+            required_threads = config.ThreadsBeforeWrite;
             this.repository = repository;
             timer = new Timer(Poll, null, 1000, Timeout.Infinite);
         }
 
         private void Poll(object state)
         {
-            int requiredThreads = 1000;
             if(TaskRunner.ForumThreads == null)
             {
                 timer.Change(1000, Timeout.Infinite);
                 return;
             }
 
-            if(TaskRunner.ForumThreads.Count > requiredThreads)
+            if(TaskRunner.ForumThreads.Count > required_threads)
             {
                 List<DbModels.Thread> threads = new List<DbModels.Thread>();
-                for(int i = 0; i < requiredThreads; i++)
+                for(int i = 0; i < required_threads; i++)
                 {
                     DbModels.Thread thread;
                     if(TaskRunner.ForumThreads.TryTake(out thread))

@@ -1,4 +1,7 @@
-﻿using HtmlAgilityPack;
+﻿using AngleSharp.Dom;
+using AngleSharp.Dom.Html;
+using AngleSharp.Parser.Html;
+using HtmlAgilityPack;
 using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
@@ -30,36 +33,92 @@ namespace RobloxScraper.RobloxModels
 
         public void AddPage(string html)
         {
-            RobloxPage page = new RobloxPage(html, this);
-            if(page.PageNumber == CurrentPage)
+            HtmlParser parser = new HtmlParser();
+            IHtmlDocument document = parser.Parse(html);
+            RobloxPage page = new RobloxPage(document, this);
+            if (page.PageNumber == CurrentPage)
             {
-                if(CurrentPage == 0)
+                try
                 {
-                    AddFirstPage(page);
+                    if (CurrentPage == 0)
+                    {
+                        AddFirstPage(document, page);
+                    }
+                    else
+                    {
+                        Pages.Add(page);
+                        CurrentPage++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.Message + " In Thread # " + ThreadId);
+                    throw new Exception(ex.Message + " In Thread # " + ThreadId);
+                }
+
+            }
+            else
+            {
+                throw new Exception("Unexpected page number");
+            }
+            /*
+            try
+            {
+                document1 = parser.Parse(html);
+                document = new HtmlDocument();
+                document.LoadHtml(html);
+                page = new RobloxPage(document, this);
+                if (page.PageNumber == CurrentPage)
+                {
+                    try
+                    {
+                        if (CurrentPage == 0)
+                        {
+                            AddFirstPage(document1, page);
+                        }
+                        else
+                        {
+                            Pages.Add(page);
+                            CurrentPage++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Write(ex.Message + " In Thread # " + ThreadId);
+                        throw new Exception(ex.Message + " In Thread # " + ThreadId);
+                    }
+
+                }
+                else
+                {
+                    throw new Exception("Unexpected page number");
+                }
+            }
+            catch (ArgumentException ex) //On an unsupported encoding type
+            {
+                page = new RobloxPage();
+                if (CurrentPage == 0)
+                {
+                    IsEmpty = true;
                 }
                 else
                 {
                     Pages.Add(page);
                     CurrentPage++;
                 }
-            }
-            else
-            {
-                throw new Exception("Unexpected page number");
-            }
-
+            }*/
         }
 
 
 
-        //First page add, performsn some adiditon stuff
-        public void AddFirstPage(RobloxPage page)
+        //First page add, performs some additional stuff
+        public void AddFirstPage(AngleSharp.Dom.Html.IHtmlDocument document, RobloxPage page)
         {
             if (!page.IsEmpty)
             {
-                ParseForum(page.Document);
-                ParseTitle(page.Document);
-                ParseNumberOfPages(page.Document);
+                ParseForum(document);
+                ParseTitle(document);
+                ParseNumberOfPages(document);
                 Pages.Add(page);
                 CurrentPage++;
             }
@@ -103,37 +162,58 @@ namespace RobloxScraper.RobloxModels
             return dbThread;
         }
 
-        private void ParseForum(HtmlDocument document)
+        private void ParseForum(AngleSharp.Dom.Html.IHtmlDocument document)
         {
-            HtmlNode forumsNode = document.GetElementbyId("ctl00_cphRoblox_PostView1_ctl00_Whereami1");
-            HtmlNode forumGroupNode = forumsNode.SelectSingleNode("div/nobr[2]/a");
-            HtmlNode forumNode = forumsNode.SelectSingleNode("div/nobr[3]/a");
+            IHtmlCollection<IElement> forumsElements = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Whereami1").QuerySelectorAll("nobr > a");
 
-            string forumGroupUrl = forumGroupNode.Attributes["href"].Value;
-            string forumUrl = forumNode.Attributes["href"].Value;
 
-            MatchCollection forumGroupMatches = Regex.Matches(forumGroupUrl, "[0-9]+", RegexOptions.IgnoreCase);
+            //HtmlNode forumGroupNode = forumsNode.SelectSingleNode("div/nobr[2]/a");
+            //HtmlNode forumNode = forumsNode.SelectSingleNode("div/nobr[3]/a");
+            //string forumUrl = forumNode.Attributes["href"].Value;
+            //string formName = forumNode.InnerText;
+
+
+            string forumUrl = forumsElements[forumsElements.Length - 1].Attributes["href"].Value;
+            string formName = forumsElements[forumsElements.Length - 1].TextContent;
             MatchCollection forumMatches = Regex.Matches(forumUrl, "[0-9]+", RegexOptions.IgnoreCase);
 
-            string formGroupName = forumGroupNode.InnerText;
-            string formName = forumNode.InnerText;
+            string forumGroupUrl;         
+            string formGroupName;
+            int forumGroupId;
+            MatchCollection forumGroupMatches;
 
-            Forum = new RobloxForum(int.Parse(forumGroupMatches[0].Value), formName);
+            if (forumsElements.Length == 2)
+            {
+                formGroupName = "ROBLOX Forum";
+                forumGroupId = 0;
+            }
+            else
+            {
+                forumGroupUrl = forumsElements[1].Attributes["href"].Value;
+                forumGroupMatches = Regex.Matches(forumGroupUrl, "[0-9]+", RegexOptions.IgnoreCase);
+                formGroupName = forumsElements[1].TextContent;
+                forumGroupId = int.Parse(forumGroupMatches[0].Value);
+            }
+
+            Forum = new RobloxForum(forumGroupId, formName);
             ForumGroup = new RobloxForumGroup(int.Parse(forumMatches[0].Value), formGroupName);
         }
 
-        private void ParseTitle(HtmlDocument document)
+        private void ParseTitle(AngleSharp.Dom.Html.IHtmlDocument document)
         {
-            Title = document.GetElementbyId("ctl00_cphRoblox_PostView1_ctl00_PostTitle").InnerText;
+            Title = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_PostTitle").TextContent;
         }
 
 
 
         //Parses out the total number of pages in this post
-        private void ParseNumberOfPages(HtmlDocument document)
+        private void ParseNumberOfPages(AngleSharp.Dom.Html.IHtmlDocument document)
         {
-            HtmlNode pager = document.DocumentNode.SelectSingleNode("//*[@id='ctl00_cphRoblox_PostView1_ctl00_Pager']");
-            string pageText = pager.SelectSingleNode("table/tr[1]/td[1]/span").InnerText;
+            IElement pager = document.GetElementById("ctl00_cphRoblox_PostView1_ctl00_Pager").QuerySelector("table tr").QuerySelector("td").QuerySelector("span");
+                
+            //HtmlNode pager = document.DocumentNode.SelectSingleNode("//*[@id='ctl00_cphRoblox_PostView1_ctl00_Pager']");
+            //string pageText = pager.SelectSingleNode("table/tr[1]/td[1]/span").InnerText;
+            string pageText = pager.TextContent;
 
             MatchCollection matches = Regex.Matches(pageText, "[0-9]+", RegexOptions.IgnoreCase);
 

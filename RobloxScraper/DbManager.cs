@@ -13,9 +13,9 @@ namespace RobloxScraper
         ForumsRepository repository;
         int required_threads;
 
-        public DbManager(ForumsRepository repository, Config config)
+        public DbManager(ForumsRepository repository, Config1 config)
         {
-            required_threads = config.ThreadsBeforeWrite;
+            required_threads = config.threads_before_write;
             this.repository = repository;
             timer = new Timer(Poll, null, 1000, Timeout.Infinite);
         }

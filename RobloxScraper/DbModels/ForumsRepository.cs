@@ -1,8 +1,10 @@
-﻿using RobloxScraper.DbModels;
+﻿using Microsoft.EntityFrameworkCore;
+using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RobloxScraper.DbModels
 {
@@ -20,6 +22,12 @@ namespace RobloxScraper.DbModels
 
             _context.Threads.AddRange(threads);
             _context.SaveChanges();
+        }
+
+        public async Task<int> GetHighestThreadIdAsync()
+        {
+            int? max = await _context.Threads.MaxAsync(t => t.Id);
+            return max ?? 0;
         }
 
         public int GetHighestThreadId()

@@ -133,8 +133,8 @@ namespace RobloxScraper
             {
                 long count = TaskRunner.downloadedStats[DownloadTasks[i]].Count;
                 long pagesCount = TaskRunner.pageDownloadStats[DownloadTasks[i]].Count;
-                long time = TaskRunner.downloadedStats[DownloadTasks[i]].TimeTaken;
-                long pagesTime = TaskRunner.pageDownloadStats[DownloadTasks[i]].TimeTaken;
+                long time = TaskRunner.downloadedStats[DownloadTasks[i]].Time;
+                long pagesTime = TaskRunner.pageDownloadStats[DownloadTasks[i]].Time;
 
                 float avg = new Stat(count + pagesCount, time + pagesTime).Average;
 
@@ -157,8 +157,8 @@ namespace RobloxScraper
             {
                 long count = TaskRunner.processedStats[ProcessTasks[i]].Count;
                 long pagesCount = TaskRunner.pageProcessedStats[ProcessTasks[i]].Count;
-                long time = TaskRunner.processedStats[ProcessTasks[i]].TimeTaken;
-                long pagesTime = TaskRunner.pageProcessedStats[ProcessTasks[i]].TimeTaken;
+                long time = TaskRunner.processedStats[ProcessTasks[i]].Time;
+                long pagesTime = TaskRunner.pageProcessedStats[ProcessTasks[i]].Time;
 
                 float avg = new Stat(count+pagesCount, time+pagesTime).Average;
 
@@ -178,7 +178,7 @@ namespace RobloxScraper
             }
         }
 
-        private string GetWorkerStatus(Task task)
+        private string GetWorkerStatus(System.Threading.Tasks.Task task)
         {
             return task.Status.ToString();
         }
@@ -187,11 +187,11 @@ namespace RobloxScraper
         {
             if(type == "download")
             {
-                return new Stat(count - downloadSnapshot.Count, time - downloadSnapshot.TimeTaken).Average;
+                return new Stat(count - downloadSnapshot.Count, time - downloadSnapshot.Time).Average;
             }
             else
             {
-                return new Stat(count - processedSnapshot.Count, time - processedSnapshot.TimeTaken).Average;
+                return new Stat(count - processedSnapshot.Count, time - processedSnapshot.Time).Average;
             }
         }
 

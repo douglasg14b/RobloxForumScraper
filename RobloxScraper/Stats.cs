@@ -10,18 +10,18 @@ namespace RobloxScraper
         public Stat(long count, long timetaken)
         {
             Count = count;
-            TimeTaken = timetaken;
+            Time = timetaken;
         }
 
         public long Count { get; set; } = 0;
-        public long TimeTaken { get; set; } = 0;
+        public long Time { get; set; } = 0;
 
         public float Average
         { get
             {
                 if(Count > 0)
                 {
-                    return (float)TimeTaken / (float)Count;
+                    return (float)Time / (float)Count;
                 }
                 return float.NaN;
             }

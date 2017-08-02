@@ -1,5 +1,6 @@
 ﻿using RobloxScraper.DbModels;
 using RobloxScraper.RobloxModels;
+using RobloxScraper.Telemetry;
 using System;
 using System.Diagnostics;
 using System.Net.Http;
@@ -10,46 +11,31 @@ namespace RobloxScraper
 {
     class Program
     {
-        static RobloxClient _client = new RobloxClient(new HttpClientHandler());
-
         static void Main(string[] args)
         {
-            EncodingProvider provider = CodePagesEncodingProvider.Instance;
-            Encoding.RegisterProvider(provider);
-
-            Config config = new Config();
-
+            SetupEncodingProvider();
+            Config.Initialize(new IniFile());
             ForumsRepository respository = new ForumsRepository(new ForumsContext());
 
-            TaskRunner.Init(respository, config);
+            TaskManager manager = new TaskManager(respository);
+            ConsoleOutput consoleOutput = new ConsoleOutput(manager);
+            Task.Run(async () =>
+            {
+                await manager.Start();
+            }).GetAwaiter().GetResult();
+            
+
+            /*TaskRunner.Init(respository, config);
             TaskRunner.Start();
             StatsManager updater = new StatsManager();
-            DbManager dbManager = new DbManager(respository, config);
+            DbManager dbManager = new DbManager(respository, config);*/
 
             Console.ReadKey(true);
         }
 
-
-        private static async Task<RobloxThread> GetThread(int id)
+        static void SetupEncodingProvider()
         {
-            string html = await _client.GetThread(id);
-
-            RobloxThread thread = new RobloxThread(id);
-            thread.AddPage(html);
-            if(thread.PagesCount == 1)
-            {
-                return thread;
-            }
-            else
-            {
-                //Start at 1 since first page is already pulled
-                for(int i = 1; i < thread.PagesCount; i++)
-                {
-                    string pageHtml = _client.GetThread(id, i, thread.GetNextPageParams()).GetAwaiter().GetResult();
-                    thread.AddPage(pageHtml);
-                }
-            }
-            return thread;
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
     }
 }

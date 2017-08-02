@@ -33,8 +33,8 @@ namespace RobloxScraper
         {
             Queue = new ConcurrentQueue<int>();
             ForumThreads = new ConcurrentBag<Thread>();
-            DownloadTasks = new ConcurrentDictionary<string, Task>();
-            ProcessingTasks = new ConcurrentDictionary<string, Task>();
+            DownloadTasks = new ConcurrentDictionary<string, System.Threading.Tasks.Task>();
+            ProcessingTasks = new ConcurrentDictionary<string, System.Threading.Tasks.Task>();
 
             UnparsedThreads = new ConcurrentQueue<KeyValuePair<int, string>>();
             PartiallyParsedThreads = new ConcurrentQueue<KeyValuePair<RobloxThread, string>>();
@@ -81,19 +81,19 @@ namespace RobloxScraper
         //Simple numbered queue
         public static ConcurrentQueue<int> Queue { get; private set; }
 
-        public static ConcurrentDictionary<string, Task> DownloadTasks { get; private set; }
-        public static ConcurrentDictionary<string, Task> ProcessingTasks { get; private set; }
+        public static ConcurrentDictionary<string, System.Threading.Tasks.Task> DownloadTasks { get; private set; }
+        public static ConcurrentDictionary<string, System.Threading.Tasks.Task> ProcessingTasks { get; private set; }
 
         //ohgod just instantiate the damn class
-        public static void Init(ForumsRepository repository, Config config)
+        public static void Init(ForumsRepository repository, Config1 config)
         {
             _repository = repository;
 
-            max_workers = config.MaxPocessors;
-            max_downloaders = config.MaxDownloaders;
-            max_forum_thread = config.MaxThread;
-            start_thread_modifier = config.StartThread;
-            max_database_queue += config.ThreadsBeforeWrite;
+            max_workers = config.max_processors;
+            max_downloaders = config.max_downloaders;
+            max_forum_thread = config.max_thread;
+            start_thread_modifier = config.start_thread;
+            max_database_queue += config.threads_before_write;
         }
 
         public static void Start()
@@ -117,7 +117,7 @@ namespace RobloxScraper
         {
             for (int i = 0; i < max_downloaders; i++)
             {
-                Task task = new Task(DoDownloadWork, $"download_task{i}", TaskCreationOptions.LongRunning);
+                System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(DoDownloadWork, $"download_task{i}", TaskCreationOptions.LongRunning);
                 //Task task = new Task((object state) => { DoDownloadWork(state).GetAwaiter().GetResult(); }, $"download_task{i}", TaskCreationOptions.LongRunning);
 
                 DownloadTasks.TryAdd($"download_task{i}", task);
@@ -133,7 +133,7 @@ namespace RobloxScraper
         {
             for(int i = 0; i < max_workers; i++)
             {
-                Task task = new Task(DoWork, $"worker_task{i}", TaskCreationOptions.LongRunning);
+                System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(DoWork, $"worker_task{i}", TaskCreationOptions.LongRunning);
                 //Task task = new Task((object state) => { DoWork(state).GetAwaiter().GetResult(); }, $"worker_task{i}", TaskCreationOptions.LongRunning);
 
                 ProcessingTasks.TryAdd($"worker_task{i}", task);
@@ -169,31 +169,31 @@ namespace RobloxScraper
         {
             System.Threading.Interlocked.Increment(ref threadsDownloaded);
             downloadedStats[key].Count++;
-            downloadedStats[key].TimeTaken += time;
+            downloadedStats[key].Time += time;
         }
         
         private static void IteratePagesDownloaded(string key, long time)
         {
             pageDownloadStats[key].Count++;
-            pageDownloadStats[key].TimeTaken += time;
+            pageDownloadStats[key].Time += time;
         }
 
         private static void IteratePagesProcessed(string key, long time)
         {
             pageProcessedStats[key].Count++;
-            pageProcessedStats[key].TimeTaken += time;
+            pageProcessedStats[key].Time += time;
         }
 
         private static void IterateThreadsProcessed(string key, long time)
         {
             System.Threading.Interlocked.Increment(ref threadsProcessed);
             processedStats[key].Count++;
-            processedStats[key].TimeTaken += time;
+            processedStats[key].Time += time;
         }
 
         private static void DownloaderComplete(string key)
         {
-            foreach(Task task in DownloadTasks.Values)
+            foreach(System.Threading.Tasks.Task task in DownloadTasks.Values)
             {
                 if (!task.IsCompleted)
                 {
@@ -205,7 +205,7 @@ namespace RobloxScraper
 
         private static void ProcessorComplete(string key)
         {
-            foreach (Task task in ProcessingTasks.Values)
+            foreach (System.Threading.Tasks.Task task in ProcessingTasks.Values)
             {
                 if (!task.IsCompleted)
                 {

@@ -6,7 +6,7 @@ using System.Text;
 // Change this to match your program's normal namespace
 namespace RobloxScraper
 {
-    class IniFile   // revision 11
+    public class IniFile   // revision 11
     {
         string Path;
         string EXE = "scraper";

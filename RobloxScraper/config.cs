@@ -22,6 +22,8 @@ namespace RobloxScraper
         public static int m_threads_before_write;
         [ThreadStatic]
         public static int m_logical_processors;
+        [ThreadStatic]
+        public static bool m_pull_empty_threads;
 
         public static int MaxDownloaders
         {
@@ -89,7 +91,17 @@ namespace RobloxScraper
                 return m_logical_processors;
             }
         }
-
+        public static bool PullEmptyThreads
+        {
+            get
+            {
+                if (!initilized)
+                {
+                    Initialize();
+                }
+                return m_pull_empty_threads;
+            }
+        }
 
         /* Unconfigurable settings */
 
@@ -132,6 +144,7 @@ namespace RobloxScraper
         private static int max_thread;
         private static int threads_before_write;
         private static int logical_processors;
+        private static bool pull_empty_threads;
 
         private static int max_processing_queue = 100;
         private static float max_database_queue_modifier = 1.5f;
@@ -143,6 +156,7 @@ namespace RobloxScraper
         private static int default_start_thread = 0;
         private static int default_max_thread = 25000000;
         private static int default_threads_before_write = 5000;
+        private static bool default_pull_empty_threads = false;
 
 
         /// <summary>
@@ -156,12 +170,14 @@ namespace RobloxScraper
             var startThread = ini.Read("StartThread");
             var maxThread = ini.Read("MaxThread");
             var threadsBeforeWrite = ini.Read("ThreadsBeforeWrite");
+            var pullEmptyThreads = ini.Read("PullEmptyThreads");
 
             max_downloaders = TryGetValue(maxDownloaders, default_max_downloaders);
             max_processors = TryGetValue(maxProcessors, default_max_processors);
             start_thread = TryGetValue(startThread, default_start_thread);
             max_thread = TryGetValue(maxThread, default_max_thread);
             threads_before_write = TryGetValue(threadsBeforeWrite, default_threads_before_write);
+            pull_empty_threads = TryGetBoolValue(pullEmptyThreads, default_pull_empty_threads);
         }
 
         /// <summary>
@@ -177,6 +193,7 @@ namespace RobloxScraper
 
             m_max_processing_queue = max_processing_queue;
             m_max_database_queue_modifier = max_database_queue_modifier;
+            m_pull_empty_threads = pull_empty_threads;
 
             initilized = true;
         }
@@ -191,5 +208,14 @@ namespace RobloxScraper
             return def;
         }
 
+        private static bool TryGetBoolValue(string value, bool def)
+        {
+            bool output = false;
+            if (Boolean.TryParse(value, out output))
+            {
+                return output;
+            }
+            return def;
+        }
     }
 }

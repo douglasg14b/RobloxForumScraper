@@ -9,41 +9,60 @@ namespace RobloxScraper
 {
     public class DbManager
     {
+        int timeout = 50;
+
         Timer timer;
         ForumsRepository repository;
+        TaskManager taskManager;
         int required_threads;
+        public DbStatus status = DbStatus.Uninitilized;
 
-        public DbManager(ForumsRepository repository, Config1 config)
+        public DbManager(ForumsRepository repository, TaskManager taskManager)
         {
-            required_threads = config.threads_before_write;
+            status = DbStatus.Initilizing;
+            required_threads = Config.ThreadsBeforeWrite;
             this.repository = repository;
-            timer = new Timer(Poll, null, 1000, Timeout.Infinite);
+            this.taskManager = taskManager;
+            timer = new Timer(Poll, null, timeout, Timeout.Infinite);
         }
 
         private void Poll(object state)
         {
-            if(TaskRunner.ForumThreads == null)
+            status = DbStatus.Polling;
+            if (taskManager.DatabaseQueue == null)
             {
-                timer.Change(1000, Timeout.Infinite);
+                timer.Change(timeout, Timeout.Infinite);
                 return;
             }
 
-            if(TaskRunner.ForumThreads.Count > required_threads)
+            if(taskManager.DatabaseQueue.Count > required_threads)
             {
+                status = DbStatus.Cleaning;
                 List<DbModels.Thread> threads = new List<DbModels.Thread>();
                 for(int i = 0; i < required_threads; i++)
                 {
                     DbModels.Thread thread;
-                    if(TaskRunner.ForumThreads.TryTake(out thread))
+                    if(taskManager.DatabaseQueue.TryDequeue(out thread))
                     {
                         threads.Add(thread);
                     }
                 }
                 RemoveExistingEntityReferences(threads);
-                repository.InsertThreads(threads);
+                status = DbStatus.Writing;
+                /*
+                if (Config.PullEmptyThreads)
+                {
+                    repository.UpdateThreads(threads);
+                }
+                else
+                {
+                    repository.InsertThreads(threads);
+                }*/
+                repository.InsertOrUpdateThreads(threads);
             }
-            
-            timer.Change(1000, Timeout.Infinite);
+
+            status = DbStatus.Polling;
+            timer.Change(timeout, Timeout.Infinite);
         }
 
         private void RemoveExistingEntityReferences(List<DbModels.Thread> threads)
@@ -121,6 +140,13 @@ namespace RobloxScraper
         //Necessary to work around entity frameworks issue with inserting duplicate entities
         private void GetAndRemoveExistingUsers(List<int> users, List<DbModels.Thread> threads)
         {
+            if(users.Count == 0)
+            {
+                return;
+            }
+
+            status = DbStatus.CleaningUsers;
+
             List<int> existing = new List<int>();
             foreach (int id in users)
             {
@@ -134,9 +160,9 @@ namespace RobloxScraper
             //Ohgod so inefficient....
             foreach (DbModels.Thread thread in threads)
             {
-                if (thread.Forum != null)
+                if(thread.Posts != null)
                 {
-                    foreach(Post post in thread.Posts)
+                    foreach (Post post in thread.Posts)
                     {
                         foreach (int id in existing)
                         {
@@ -165,5 +191,15 @@ namespace RobloxScraper
         {          
             return threads.Where(t => t.Posts != null).SelectMany(t => t.Posts.Select(p => p.UserId)).Distinct().ToList();
         }
+    }
+
+    public enum DbStatus
+    {
+        Uninitilized = 0,
+        Initilizing = 1,
+        Polling = 2,
+        Cleaning = 3,
+        CleaningUsers = 4,
+        Writing = 5
     }
 }

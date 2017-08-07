@@ -17,44 +17,50 @@ namespace RobloxScraper
 
         public async Task<string> GetThread(int id)
         {
-            try
+            Uri uri = BuildPageUri(id);
+            HttpRequestMessage request = CreateRequest(HttpMethod.Post, uri);
+            HttpResponseMessage response = await SendAsync(request);
+            if (!response.IsSuccessStatusCode)
             {
-                Uri uri = BuildPageUri(id);
-                HttpRequestMessage request = CreateRequest(HttpMethod.Post, uri);
-                HttpResponseMessage response = await SendAsync(request);
-                response.EnsureSuccessStatusCode();
-
-                return await response.Content.ReadAsStringAsync();
+                if(response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    return String.Empty;
+                }
+                else
+                {
+                    response.EnsureSuccessStatusCode();
+                }
             }
-            catch(Exception ex)
-            {
-                return String.Empty;
-            }
+            return await response.Content.ReadAsStringAsync();
         }
 
         public async Task<string> GetThread(int id, int page, RobloxRequestParams parameters)
         {
-            try
+            Uri uri = BuildPageUri(id);
+            List<KeyValuePair<string, string>> formArgs = new List<KeyValuePair<string, string>>()
             {
-                Uri uri = BuildPageUri(id);
-                List<KeyValuePair<string, string>> formArgs = new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("__EVENTTARGET", $"ctl00$cphRoblox$PostView1$ctl00$Pager$Page{page}"),
-                    new KeyValuePair<string, string>("__VIEWSTATE", parameters.ViewState),
-                    new KeyValuePair<string, string>("__VIEWSTATEGENERATOR", parameters.ViewStateGenerator),
-                    new KeyValuePair<string, string>("__EVENTVALIDATION", parameters.EventValidation),
-                    new KeyValuePair<string, string>("__EVENTARGUMENT", parameters.EventArgument)
-                };
-                HttpRequestMessage request = CreateRequest(HttpMethod.Post, uri, formArgs);
-                HttpResponseMessage response = await SendAsync(request);
-                response.EnsureSuccessStatusCode();
+                new KeyValuePair<string, string>("__EVENTTARGET", $"ctl00$cphRoblox$PostView1$ctl00$Pager$Page{page}"),
+                new KeyValuePair<string, string>("__VIEWSTATE", parameters.ViewState),
+                new KeyValuePair<string, string>("__VIEWSTATEGENERATOR", parameters.ViewStateGenerator),
+                new KeyValuePair<string, string>("__EVENTVALIDATION", parameters.EventValidation),
+                new KeyValuePair<string, string>("__EVENTARGUMENT", parameters.EventArgument)
+            };
+            HttpRequestMessage request = CreateRequest(HttpMethod.Post, uri, formArgs);
+            HttpResponseMessage response = await SendAsync(request);
 
-                return await response.Content.ReadAsStringAsync();
-            }
-            catch (Exception ex)
+            if (!response.IsSuccessStatusCode)
             {
-                return String.Empty;
+                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    return String.Empty;
+                }
+                else
+                {
+                    response.EnsureSuccessStatusCode();
+                }
             }
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         public async Task<string> GetThread(int id, int page, string viewState, string viewStateGenerator, string eventValidation, string eventArgument)

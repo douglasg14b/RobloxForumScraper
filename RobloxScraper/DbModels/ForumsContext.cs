@@ -7,8 +7,9 @@ namespace RobloxScraper.DbModels
 {
     public class ForumsContext : DbContext
     {
+        public ForumsContext() : base() { ChangeTracker.AutoDetectChangesEnabled = false; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
+        {         
             optionsBuilder.UseSqlite("Data Source=forums.db");
         }
 

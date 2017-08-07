@@ -18,7 +18,8 @@ namespace RobloxScraper
             ForumsRepository respository = new ForumsRepository(new ForumsContext());
 
             TaskManager manager = new TaskManager(respository);
-            ConsoleOutput consoleOutput = new ConsoleOutput(manager);
+            DbManager dbManager = new DbManager(respository, manager);
+            ConsoleOutput consoleOutput = new ConsoleOutput(manager, dbManager, respository);
             Task.Run(async () =>
             {
                 await manager.Start();

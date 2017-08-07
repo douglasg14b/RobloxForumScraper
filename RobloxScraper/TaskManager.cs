@@ -25,6 +25,9 @@ namespace RobloxScraper
         private bool active;
         private bool downloadersActive;
         private bool workersActive;
+        public Exception exception;
+
+
         private ForumsRepository repository;
         RobloxClient client;
 
@@ -83,11 +86,21 @@ namespace RobloxScraper
 
         public async Task Start()
         {
-            int mostRecent = await repository.GetHighestThreadIdAsync();
             active = true;
             downloadersActive = true;
             workersActive = true;
-            await FillQueue(mostRecent);
+
+            if (Config.PullEmptyThreads)
+            {
+                List<int> emptyThreads = await repository.GetEmptyThreadIdsAsync(Config.StartThread);
+                await FillQueue(emptyThreads);
+            }
+            else
+            {
+                int mostRecent = await repository.GetHighestThreadIdAsync();
+                await FillQueue(mostRecent);
+            }
+    
             await InitilizeTasks();
 
             await StartTasks();
@@ -110,16 +123,33 @@ namespace RobloxScraper
             throw new NotImplementedException();
         }
 
+        private async Task FillQueue(List<int> emptyThreads)
+        {
+            await Task.Run(() =>
+            {
+                foreach(int id in emptyThreads)
+                {
+                    ThreadQueue.Enqueue(id);
+                }               
+            });
+        }
+
         private async Task FillQueue(int mostrecent)
         {
             //CPU bound operation for large numbers, offload to task to maintain UI responsiveness
             await Task.Run(() =>
             {
+                int start = mostrecent;
                 if (mostrecent == 0)
                 {
-                    mostrecent += Config.StartThread;
+                    start += Config.StartThread;
                 }
-                for (int i = mostrecent + 1; i < Config.MaxThread; i++)
+                else if(mostrecent < Config.StartThread)
+                {
+                    start = Config.StartThread;
+                }
+
+                for (int i = start + 1; i < Config.MaxThread; i++)
                 {
                     ThreadQueue.Enqueue(i);
                 }
@@ -188,10 +218,19 @@ namespace RobloxScraper
                         //Another thread grabbed the item before we did, continue other work
                         continue;
                     }
-                    await stopwatch.TimeAsync(
-                        async () => await DownloadThreadPage(thread),
-                        async (long time) => TelemetryManager.Incriment(TelemetryType.downloaded_pages, taskState.Id, time)
-                    );
+                    try
+                    {
+                        await stopwatch.TimeAsync(
+                            async () => await DownloadThreadPage(thread),
+                            async (long time) => TelemetryManager.Incriment(TelemetryType.downloaded_pages, taskState.Id, time)
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        active = false;
+                        exception = ex;
+                        break;
+                    }
 
                     continue;
                 }
@@ -206,11 +245,20 @@ namespace RobloxScraper
                         continue;
                     }
 
-                    await stopwatch.TimeAsync(
-                        async () => await DownloadThread(id),
-                        async (long time) => TelemetryManager.Incriment(TelemetryType.downloaded_threads, taskState.Id, time)
+                    try
+                    {
+                        await stopwatch.TimeAsync(
+                            async () => await DownloadThread(id),
+                            async (long time) => TelemetryManager.Incriment(TelemetryType.downloaded_threads, taskState.Id, time)
 
-                    );
+                        );
+                    }
+                    catch(Exception ex)
+                    {
+                        active = false;
+                        exception = ex;
+                        break;
+                    }
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using ConsoleTables;
+using RobloxScraper.DbModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,26 +11,56 @@ namespace RobloxScraper.Telemetry
     {
         Timer timer;
         TaskManager taskManager;
-        public ConsoleOutput(TaskManager taskManager)
+        DbManager dbManager;
+        ForumsRepository repository;
+        public ConsoleOutput(TaskManager taskManager, DbManager dbManager, ForumsRepository repository)
         {
             this.taskManager = taskManager;
+            this.dbManager = dbManager;
+            this.repository = repository;
             timer = new Timer(UpdateConsole, null, 250, Timeout.Infinite);
         }
 
         private void UpdateConsole(object state)
         {
-            Console.SetCursorPosition(0, 0);
+            if (taskManager.exception == null)
+            {
+                Console.SetCursorPosition(0, 0);
 
-            string statsTable = GetOverallStatsTable();
-            string downloadTable = GetDownloadStatsTable();
-            string processedTable = GetPocessedStatsTable();
+                string statsTable = GetOverallStatsTable();
+                string downloadTable = GetDownloadStatsTable();
+                string processedTable = GetPocessedStatsTable();
 
-            Console.Write(statsTable);
-            Console.Write(downloadTable);
-            Console.WriteLine("");
-            Console.WriteLine("");
-            Console.Write(processedTable);
-            timer.Change(250, Timeout.Infinite);
+                Console.Write(statsTable);
+                Console.Write(downloadTable);
+                Console.WriteLine("");
+                Console.WriteLine("");
+                Console.Write(processedTable);
+                timer.Change(250, Timeout.Infinite);
+            }
+            else
+            {
+                WriteException();
+            }
+        }
+
+        private void WriteException()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine();
+            Console.WriteLine("An exception has occured while trying to download. Downloading and processing have been stopped.");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("Message: ");
+            Console.ResetColor();
+            Console.WriteLine("        " + taskManager.exception.Message);
+            if(taskManager.exception.InnerException != null)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine("Inner Message: ");
+                Console.ResetColor();
+                Console.WriteLine("        " + taskManager.exception.InnerException.Message);
+            }
         }
 
         /**********************
@@ -85,6 +116,7 @@ namespace RobloxScraper.Telemetry
             ConsoleTable table = new ConsoleTable("Worker", "Status", "Processed ", "Pages Processed ", "Avg Time(ms)");
             AddPocessedRows(table);
             AddProcessedTotalsRow(table);
+            AddProcessedEmptyTotalRow(table);
             return table.ToMarkDownString();
         }
 
@@ -119,13 +151,19 @@ namespace RobloxScraper.Telemetry
             table.AddRow("---", "Total", threads.count, pages.count, totals.AverageTime / workerCount);
         }
 
+        private void AddProcessedEmptyTotalRow(ConsoleTable table)
+        {
+            Stat empty = TelemetryManager.emptyThreads;
+
+            table.AddRow("---", "---", "Total Empty:", empty.count, "---");
+        }
         /**********************
           ==== Overall ====
          **********************/
 
         private string GetOverallStatsTable()
         {
-            ConsoleTable table = new ConsoleTable("Time Elapsed", "Latest Thread", "Thread Queue", "Processing Queue", "Database Queue");
+            ConsoleTable table = new ConsoleTable("Time Elapsed", "Latest Thread", "Thread Queue", "Processing Queue", "Database Queue", "Db Status", "Test");
 
             TimeSpan elapsed = DateTime.Now.Subtract(TelemetryManager.startTime);
             taskManager.ThreadQueue.TryPeek(out int latestThread);
@@ -133,7 +171,7 @@ namespace RobloxScraper.Telemetry
             int processQueue = taskManager.ProcessingQueue.Count;
             int databaseQueue = taskManager.DatabaseQueue.Count;
 
-            table.AddRow(elapsed, latestThread, threadQueue, processQueue, databaseQueue);
+            table.AddRow(elapsed, latestThread, threadQueue, processQueue, databaseQueue, dbManager.status.ToString(), repository.status);
 
             return table.ToStringAlternative();
         }

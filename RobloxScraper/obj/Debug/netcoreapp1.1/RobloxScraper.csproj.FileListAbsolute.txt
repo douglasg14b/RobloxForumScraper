@@ -19,3 +19,5 @@ C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bi
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\Licence.txt
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\sqlite3.def
 C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\obj\Debug\netcoreapp1.1\RobloxScraper.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\BetterConsoleTables.dll
+C:\Users\Administrator\Documents\Programming\RobloxForumScraper\RobloxScraper\bin\Debug\netcoreapp1.1\BetterConsoleTables.pdb

@@ -9,7 +9,7 @@ namespace RobloxScraper
 {
     public class DbManager
     {
-        int timeout = 50;
+        int timeout = 250;
 
         Timer timer;
         ForumsRepository repository;
@@ -35,7 +35,7 @@ namespace RobloxScraper
                 return;
             }
 
-            if(taskManager.DatabaseQueue.Count > required_threads)
+            if((taskManager.DatabaseQueue.Count > required_threads || taskManager.active == false) && taskManager.DatabaseQueue.Count > 0)
             {
                 status = DbStatus.Cleaning;
                 List<DbModels.Thread> threads = new List<DbModels.Thread>();

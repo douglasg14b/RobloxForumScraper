@@ -22,7 +22,7 @@ namespace RobloxScraper
         /// <summary>
         /// When false all tasks will stop processing and run to completion
         /// </summary>
-        private bool active;
+        public bool active;
         private bool downloadersActive;
         private bool workersActive;
         public Exception exception;
@@ -162,7 +162,8 @@ namespace RobloxScraper
             for (int i = 0; i < Config.MaxDownloaders; i++)
             {
                 TaskState state = new TaskState();
-                Task task = DoDownloadWork(state);
+                Task task = new Task<Task>(DoDownloadWork, state);
+                //Task task = DoDownloadWork(state);
                 state.Id = task.Id;
 
                 Downloaders.TryAdd(i, task);
@@ -182,10 +183,10 @@ namespace RobloxScraper
 
         private async Task StartTasks()
         {
-            /*foreach(Task task in Downloaders.Values)
+            foreach(Task task in Downloaders.Values)
             {
                 task.Start();
-            }*/
+            }
 
             foreach (Task task in Workers.Values)
             {
@@ -204,8 +205,10 @@ namespace RobloxScraper
             Stopwatch stopwatch = new Stopwatch();
             while (active && downloadersActive)
             {
-                if(!await CanDownload())
+                taskState.Status = State.Running;
+                if (!await CanDownload())
                 {
+                    taskState.Status = State.Paused;
                     await Task.Delay(500);
                     continue;
                 }
@@ -227,6 +230,7 @@ namespace RobloxScraper
                     }
                     catch (Exception ex)
                     {
+                        taskState.Status = State.Error;
                         active = false;
                         exception = ex;
                         break;
@@ -255,12 +259,19 @@ namespace RobloxScraper
                     }
                     catch(Exception ex)
                     {
+                        taskState.Status = State.Error;
                         active = false;
                         exception = ex;
                         break;
                     }
                 }
+                else
+                {                  
+                    downloadersActive = false;
+                    break;
+                }
             }
+            taskState.Status = State.Complete;
         }
 
         private async Task DoWork(object state)
@@ -269,8 +280,10 @@ namespace RobloxScraper
             Stopwatch stopwatch = new Stopwatch();
             while (active)
             {
-                if (!await CanProcess())
+                taskState.Status = State.Running;
+                if (!await CanProcess() && downloadersActive)
                 {
+                    taskState.Status = State.Paused;
                     await Task.Delay(250);
                     continue;
                 }
@@ -306,7 +319,15 @@ namespace RobloxScraper
                         (long time) => TelemetryManager.Incriment(TelemetryType.processed_threads, taskState.Id, time)
                     );
                 }
+                else if (!downloadersActive) //Queue is empty, no more downloads are being performed, set active to false after 1s delay
+                {
+                    taskState.Status = State.Paused;
+                    await Task.Delay(1000);
+                    active = false;
+                    break;
+                }
             }
+            taskState.Status = State.Complete;
         }
 
         /**************************

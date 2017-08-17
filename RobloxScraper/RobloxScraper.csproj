@@ -12,10 +12,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>True</Prefer32Bit>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.9.9" />
-    <PackageReference Include="ConsoleTables" Version="2.1.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.5.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.2" />
@@ -38,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BetterConsoleTables\src\BetterConsoleTables\BetterConsoleTables.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Licence.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -46,6 +49,9 @@
     </None>
     <None Update="sqlite3.def">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="testhtml.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

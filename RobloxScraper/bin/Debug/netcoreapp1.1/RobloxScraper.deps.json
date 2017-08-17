@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v1.1",
-    "signature": "bb9dad79c539561335c1d3138ae7ad77c2d4b4fc"
+    "signature": "1ada2a5747e4a352f0df27cbe332fd72cfdfa85a"
   },
   "compilationOptions": {},
   "targets": {
@@ -9,7 +9,7 @@
       "robloxscraper/1.0.0": {
         "dependencies": {
           "AngleSharp": "0.9.9",
-          "ConsoleTables": "2.1.0",
+          "BetterConsoleTables": "1.0.0",
           "HtmlAgilityPack": "1.5.1",
           "Microsoft.EntityFrameworkCore": "1.1.2",
           "Microsoft.EntityFrameworkCore.Design": "1.1.2",
@@ -23,11 +23,6 @@
       "anglesharp/0.9.9": {
         "runtime": {
           "lib/netstandard1.0/AngleSharp.dll": {}
-        }
-      },
-      "consoletables/2.1.0": {
-        "runtime": {
-          "lib/netstandard1.3/ConsoleTables.dll": {}
         }
       },
       "htmlagilitypack/1.5.1": {
@@ -301,6 +296,11 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
         }
+      },
+      "betterconsoletables/1.0.0": {
+        "runtime": {
+          "BetterConsoleTables.dll": {}
+        }
       }
     }
   },
@@ -316,13 +316,6 @@
       "sha512": "sha512-z3h0p8u7p7QFSStWaC+u9cx7+IaRvMmLXqczx5WYW5V9t58kGQg3xMyb4iRI2mIEnePQq2pp2sQAadEl4GhmBg==",
       "path": "anglesharp/0.9.9",
       "hashPath": "anglesharp.0.9.9.nupkg.sha512"
-    },
-    "consoletables/2.1.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-0Y95Fr9tNzxxJmZejpYNTZ/9xAvdeYE5px8MAzfTylaPbIsEPBaQIq5mAPbJJAPAcB2nlc6paENbGfwMtrUdPg==",
-      "path": "consoletables/2.1.0",
-      "hashPath": "consoletables.2.1.0.nupkg.sha512"
     },
     "htmlagilitypack/1.5.1": {
       "type": "package",
@@ -554,6 +547,11 @@
       "sha512": "sha512-A/uxsWi/Ifzkmd4ArTLISMbfFs6XpRPsXZonrIqyTY70xi8t+mDtvSM5Os0RqyRDobjMBwIDHDL4NOIbkDwf7A==",
       "path": "system.xml.xpath.xmldocument/4.3.0",
       "hashPath": "system.xml.xpath.xmldocument.4.3.0.nupkg.sha512"
+    },
+    "betterconsoletables/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

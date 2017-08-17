@@ -1,5 +1,6 @@
-﻿using ConsoleTables;
+﻿using BetterConsoleTables;
 using RobloxScraper.DbModels;
+using RobloxScraper.Processing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,16 +27,14 @@ namespace RobloxScraper.Telemetry
             if (taskManager.exception == null)
             {
                 Console.SetCursorPosition(0, 0);
+                ConsoleTables tables = new ConsoleTables();
+                tables.AddTable(GetOverallStatsTable());
+                tables.AddTable(GetDownloadStatsTable());
+                tables.AddTable(GetPocessedStatsTable());
 
-                string statsTable = GetOverallStatsTable();
-                string downloadTable = GetDownloadStatsTable();
-                string processedTable = GetPocessedStatsTable();
+                string output = tables.ToString();
 
-                Console.Write(statsTable);
-                Console.Write(downloadTable);
-                Console.WriteLine("");
-                Console.WriteLine("");
-                Console.Write(processedTable);
+                Console.Write(tables);
                 timer.Change(250, Timeout.Infinite);
             }
             else
@@ -67,19 +66,28 @@ namespace RobloxScraper.Telemetry
           ==== Downloaded ====
          **********************/
 
-        private string GetDownloadStatsTable()
+        private Table GetDownloadStatsTable()
         {
-            ConsoleTable table = new ConsoleTable("Worker", "Status", "Downloaded", "Pages Downloaded", "Avg Time(ms)");
+            Table table = new Table(BetterConsoleTables.Config.Markdown(), "Worker", "Status", "Downloaded", "Pages Downloaded", "Avg Time(ms)");
             AddDownloadRows(table);
             AddDownloadedTotalsRow(table);
-            return table.ToMarkDownString();
+            return table;
         }
 
-        private void AddDownloadRows(ConsoleTable table)
+        private void AddDownloadRows(Table table)
         {
             foreach (int key in TelemetryManager.downloadedThreadStats.Keys)
             {
-                string status = taskManager.Tasks[key].Status.ToString();
+                TaskState state = (TaskState)taskManager.Tasks[key].AsyncState;
+                State status;
+                if (state == null)
+                {
+                    status = State.None;
+                }
+                else
+                {
+                    status = state.Status;
+                }
                 long threadCount = TelemetryManager.downloadedThreadStats[key].count;
                 long threadTime = TelemetryManager.downloadedThreadStats[key].time;
                 long pageCount = 0;
@@ -92,11 +100,11 @@ namespace RobloxScraper.Telemetry
 
                 Stat stat = new Stat(threadCount + pageCount, threadTime + pagetime);
 
-                table.AddRow(key, status, threadCount, pageCount, stat.AverageTime);               
+                table.AddRow(key, status.ToString(), threadCount, pageCount, stat.AverageTime);               
             }
         }
 
-        private void AddDownloadedTotalsRow(ConsoleTable table)
+        private void AddDownloadedTotalsRow(Table table)
         {
             int workerCount = TelemetryManager.downloadedThreadStats.Count;
             Stat threads = TelemetryManager.overallDownloadedThreads;
@@ -111,20 +119,29 @@ namespace RobloxScraper.Telemetry
           ==== Processed ====
          **********************/
 
-        private string GetPocessedStatsTable()
+        private Table GetPocessedStatsTable()
         {
-            ConsoleTable table = new ConsoleTable("Worker", "Status", "Processed ", "Pages Processed ", "Avg Time(ms)");
+            Table table = new Table(BetterConsoleTables.Config.Markdown(), "Worker", "Status", "Processed ", "Pages Processed ", "Avg Time(ms)");
             AddPocessedRows(table);
             AddProcessedTotalsRow(table);
             AddProcessedEmptyTotalRow(table);
-            return table.ToMarkDownString();
+            return table;
         }
 
-        private void AddPocessedRows(ConsoleTable table)
+        private void AddPocessedRows(Table table)
         {
             foreach (int key in TelemetryManager.processedThreadStats.Keys)
             {
-                string status = taskManager.Tasks[key].Status.ToString();
+                TaskState state = (TaskState)taskManager.Tasks[key].AsyncState;
+                State status;
+                if (state == null)
+                {
+                    status = State.None;
+                }
+                else
+                {
+                    status = state.Status;
+                }
                 long threadCount = TelemetryManager.processedThreadStats[key].count;
                 long threadTime = TelemetryManager.processedThreadStats[key].time;
                 long pageCount = 0;
@@ -137,11 +154,11 @@ namespace RobloxScraper.Telemetry
 
                 Stat stat = new Stat(threadCount + pageCount, threadTime + pagetime);
 
-                table.AddRow(key, status, threadCount, pageCount, stat.AverageTime);
+                table.AddRow(key, status.ToString(), threadCount, pageCount, stat.AverageTime);
             }
         }
 
-        private void AddProcessedTotalsRow(ConsoleTable table)
+        private void AddProcessedTotalsRow(Table table)
         {
             int workerCount = TelemetryManager.processedThreadStats.Count;
             Stat threads = TelemetryManager.overallProcessedThreads;
@@ -151,19 +168,19 @@ namespace RobloxScraper.Telemetry
             table.AddRow("---", "Total", threads.count, pages.count, totals.AverageTime / workerCount);
         }
 
-        private void AddProcessedEmptyTotalRow(ConsoleTable table)
+        private void AddProcessedEmptyTotalRow(Table table)
         {
             Stat empty = TelemetryManager.emptyThreads;
 
-            table.AddRow("---", "---", "Total Empty:", empty.count, "---");
+            table.AddRow("---","Total Empty:", empty.count, "---", "---");
         }
         /**********************
           ==== Overall ====
          **********************/
 
-        private string GetOverallStatsTable()
+        private Table GetOverallStatsTable()
         {
-            ConsoleTable table = new ConsoleTable("Time Elapsed", "Latest Thread", "Thread Queue", "Processing Queue", "Database Queue", "Db Status", "Test");
+            Table table = new Table(BetterConsoleTables.Config.MySqlSimple(), "Time Elapsed", "Latest Thread", "Thread Queue", "Processing Queue", "Database Queue", "Db Status", "Test");
 
             TimeSpan elapsed = DateTime.Now.Subtract(TelemetryManager.startTime);
             taskManager.ThreadQueue.TryPeek(out int latestThread);
@@ -173,7 +190,7 @@ namespace RobloxScraper.Telemetry
 
             table.AddRow(elapsed, latestThread, threadQueue, processQueue, databaseQueue, dbManager.status.ToString(), repository.status);
 
-            return table.ToStringAlternative();
+            return table;
         }
     }
 }

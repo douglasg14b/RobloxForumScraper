@@ -30,19 +30,6 @@
           "lib/netstandard1.0/AngleSharp.dll": {}
         }
       },
-      "ConsoleTables/2.1.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "System.Reflection.TypeExtensions": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.3/ConsoleTables.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/ConsoleTables.dll": {}
-        }
-      },
       "HtmlAgilityPack/1.5.1": {
         "type": "package",
         "dependencies": {
@@ -2785,6 +2772,14 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
         }
+      },
+      "BetterConsoleTables/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        }
       }
     },
     ".NETCoreApp,Version=v1.1/win10-x64": {
@@ -2814,19 +2809,6 @@
         },
         "runtime": {
           "lib/netstandard1.0/AngleSharp.dll": {}
-        }
-      },
-      "ConsoleTables/2.1.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "System.Reflection.TypeExtensions": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.3/ConsoleTables.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/ConsoleTables.dll": {}
         }
       },
       "HtmlAgilityPack/1.5.1": {
@@ -5677,6 +5659,14 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
         }
+      },
+      "BetterConsoleTables/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        }
       }
     }
   },
@@ -5698,17 +5688,6 @@
         "lib/portable-windows8+net45+windowsphone8+wpa+monoandroid+monotouch/AngleSharp.xml",
         "lib/sl50/AngleSharp.dll",
         "lib/sl50/AngleSharp.xml"
-      ]
-    },
-    "ConsoleTables/2.1.0": {
-      "sha512": "0Y95Fr9tNzxxJmZejpYNTZ/9xAvdeYE5px8MAzfTylaPbIsEPBaQIq5mAPbJJAPAcB2nlc6paENbGfwMtrUdPg==",
-      "type": "package",
-      "path": "consoletables/2.1.0",
-      "files": [
-        "consoletables.2.1.0.nupkg.sha512",
-        "consoletables.nuspec",
-        "lib/net40/ConsoleTables.dll",
-        "lib/netstandard1.3/ConsoleTables.dll"
       ]
     },
     "HtmlAgilityPack/1.5.1": {
@@ -11631,12 +11610,17 @@
         "system.xml.xpath.xmldocument.4.3.0.nupkg.sha512",
         "system.xml.xpath.xmldocument.nuspec"
       ]
+    },
+    "BetterConsoleTables/1.0.0": {
+      "type": "project",
+      "path": "../../BetterConsoleTables/src/BetterConsoleTables/BetterConsoleTables.csproj",
+      "msbuildProject": "../../BetterConsoleTables/src/BetterConsoleTables/BetterConsoleTables.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v1.1": [
       "AngleSharp >= 0.9.9",
-      "ConsoleTables >= 2.1.0",
+      "BetterConsoleTables >= 1.0.0",
       "HtmlAgilityPack >= 1.5.1",
       "Microsoft.EntityFrameworkCore >= 1.1.2",
       "Microsoft.EntityFrameworkCore.Design >= 1.1.2",
@@ -11661,17 +11645,17 @@
       ],
       "frameworks": {
         "netcoreapp1.1": {
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\Administrator\\Documents\\Programming\\BetterConsoleTables\\src\\BetterConsoleTables\\BetterConsoleTables.csproj": {
+              "projectPath": "C:\\Users\\Administrator\\Documents\\Programming\\BetterConsoleTables\\src\\BetterConsoleTables\\BetterConsoleTables.csproj"
+            }
+          }
         }
       }
     },
     "frameworks": {
       "netcoreapp1.1": {
         "dependencies": {
-          "ConsoleTables": {
-            "target": "Package",
-            "version": "2.1.0"
-          },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "1.1.2"

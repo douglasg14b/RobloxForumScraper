@@ -32,6 +32,7 @@ namespace RobloxScraper.RobloxModels
 
         public void AddPage(string html)
         {
+            html = html.Replace('\uFFFF', ' ');
             HtmlParser parser = new HtmlParser();
             IHtmlDocument document = parser.Parse(html);
             RobloxPage page = new RobloxPage(document, this);
